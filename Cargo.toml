@@ -1,0 +1,14 @@
+[package]
+name = "crcbrute"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+# disable hardware accelerated pmul for debugging
+sw-pmul = []
+
+# error if hardware accelerated pmul is not available
+hw-pmul = []
+
+[dependencies]
+structopt = "0.3.25"
