@@ -169,18 +169,13 @@ fn main() {
         // a control character, we limit our characters to H..=W (0x48..=0x57)
         // and h..=w (0x68..=0x77). This gives us 5 bits per per character to
         // work with.
-        for i in 0x00_00_00_00_00u64 ..= 0xff_ff_ff_ff_ffu64 {
+        for i in 0x00_0000_0000u64 ..= 0xff_ffff_ffffu64 {
             // convert into a guaranteed ascii representation
             // first get all bits into the right position
-            let i
-                = ((i <<  0) & 0x_____________________0f) | ((i <<  1) & 0x_____________________20)
-                | ((i <<  3) & 0x__________________0f_00) | ((i <<  4) & 0x__________________20_00)
-                | ((i <<  6) & 0x_______________0f_00_00) | ((i <<  7) & 0x_______________20_00_00)
-                | ((i <<  9) & 0x____________0f_00_00_00) | ((i << 10) & 0x____________20_00_00_00)
-                | ((i << 12) & 0x_________0f_00_00_00_00) | ((i << 13) & 0x_________20_00_00_00_00)
-                | ((i << 15) & 0x______0f_00_00_00_00_00) | ((i << 16) & 0x______20_00_00_00_00_00)
-                | ((i << 18) & 0x___0f_00_00_00_00_00_00) | ((i << 19) & 0x___20_00_00_00_00_00_00)
-                | ((i << 21) & 0x0f_00_00_00_00_00_00_00) | ((i << 22) & 0x20_00_00_00_00_00_00_00);
+            let i = ((i << 12) & 0x000f_ffff_0000_0000) | (i & 0x0000_0000_000f_ffff);
+            let i = ((i <<  6) & 0x03ff_0000_03ff_0000) | (i & 0x0000_03ff_0000_03ff);
+            let i = ((i <<  3) & 0x1f00_1f00_1f00_1f00) | (i & 0x001f_001f_001f_001f);
+            let i = ((i <<  1) & 0x2020_2020_2020_2020) | (i & 0x0f0f_0f0f_0f0f_0f0f);
             // and then add to array of 0x48s
             let i = i + 0x48_48_48_48_48_48_48_48;
 
@@ -209,7 +204,7 @@ fn main() {
         }
     } else {
         // brute force find a 32-bit suffix that makes our CRC work
-        for i in 0x00_00_00_00u32 ..= 0xff_ff_ff_ffu32 {
+        for i in 0x0000_0000u32 ..= 0xffff_ffffu32 {
             if crc32.crc32(0, &i.to_le_bytes()) == target {
                 for b in
                     opt.prefix.as_bytes().iter().copied()
